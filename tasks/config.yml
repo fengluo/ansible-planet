@@ -1,0 +1,70 @@
+---
+
+- name: Creates .ssh directory for root
+  file: path={{riverrun_base}}/.ssh state=directory
+  when: server_mode != "development"
+
+# This public key is set on Github repo Settings under "Deploy keys"
+- name: Upload the public key used for Github cloning
+  copy:
+    src=id_rsa.pub
+    dest={{riverrun_base}}/.ssh/id_rsa.pub
+    mode=0644
+
+- name: Upload the private key used for Github cloning
+  copy:
+    src=id_rsa
+    dest={{riverrun_base}}/.ssh/id_rsa
+    mode=0600
+
+- name: Deploy code from Github repository
+  git:
+    repo=ssh://{{riverrun_repo}}
+    dest={{riverrun_source}}
+    version={{riverrun_version}}
+    key_file={{riverrun_base}}/.ssh/id_rsa
+    accept_hostkey=yes
+    force=yes
+
+- name: Install production dependencies
+  pip:
+    requirements: "{{ riverrun_source }}/requirements.txt"
+    virtualenv: "{{ riverrun_virtualenv }}"
+
+- name: Install riverrun
+  pip:
+    name="{{ riverrun_source }}"
+    extra_args="-e"
+    virtualenv="{{ riverrun_virtualenv }}"
+
+- name: Create application directory
+  file: path={{ riverrun_application }} state=directory
+  when: server_mode != "development"
+
+- name: Create public directory
+  file: path={{ riverrun_public_dir }} state=directory
+  when: server_mode != "development"
+
+- name: Create admin directory
+  file: path={{ riverrun_admin_dir }} state=directory
+  when: server_mode != "development"
+
+- name: Create application config
+  template: src=production.conf.j2 dest={{ riverrun_application }}/production.conf
+  when: server_mode != "development"
+
+
+- name: Add gunicorn config
+  template: src=gunicorn.py.j2 dest={{ riverrun_application }}/gunicorn.py
+  when: server_mode != "development"
+
+
+- name: Add supervisor config
+  template: src=supervisor.conf.j2 dest={{ supervisor_incdir }}/{{ riverrun_app_name }}.conf
+  when: server_mode != "development"
+
+
+- name: Add nginx config
+  template: src=nginx.conf.j2 dest=/etc/nginx/conf.d/{{ riverrun_app_name }}.conf
+  notify:
+    - nginx restart

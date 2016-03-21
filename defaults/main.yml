@@ -1,0 +1,21 @@
+---
+
+server_mode: production
+
+planet_app_name: planet
+planet_user: www-data
+planet_server_name: api.example.com
+planet_client_name: www.example.com
+planet_admin_name: admin.example.com
+
+planet_base: /var/planet
+planet_virtualenv: "{{ planet_base }}/venv"
+planet_source: "{{planet_base}}/src"
+planet_application: "{{ planet_base }}/config"
+planet_public_dir: "{{ planet_base }}/public"
+planet_admin_dir: "{{ planet_base }}/admin"
+planet_repo: "git@github.com/fengluo/planet.git" # git@github.com/qutu/planet.git
+planet_version: "master"
+
+planet_bind: "127.0.0.1:9090"
+planet_database_url: "postgresql+psycopg2://root@localhost/planet"

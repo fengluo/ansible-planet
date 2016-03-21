@@ -1,0 +1,14 @@
+[program:{{riverrun_app_name}}]
+user={{riverrun_user}}
+command = {{riverrun_virtualenv}}/bin/gunicorn -c config/gunicorn.py riverrun:app
+process_name=%(program_name)s
+directory = {{riverrun_base}}
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/{{riverrun_server_name}}.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=5
+stopwaitsecs = 60
+
+killasgroup=true
