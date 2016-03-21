@@ -1,0 +1,5 @@
+---
+galaxy_info:
+  author: Shawn Xie
+  description: an Ansible role of a site based on Python, Nginx, Supervisor, Redis and Postgresql.
+  license: MIT
